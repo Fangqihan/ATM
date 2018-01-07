@@ -11,7 +11,7 @@ from core.accounts_operations import *
 # print('>>> 6. 日常消费流水打印')
 
 while True:
-    print('欢迎来到ATM终端'.center(20, '-'))
+    print('欢迎来到ATM终端操作界面'.center(20, '-'))
     print('>>> 1. 办理信用卡')
     print('>>> 2. 账户信息查询')
     print('>>> 3. 转账')
@@ -38,12 +38,13 @@ while True:
         else:
             print('>>> 输入有误, 请重新输入 ')
 
-    elif choice == 'q' or choice == 'quit':
+    choice1 = input('>>> 是否退出？(q) ')
+    if choice == 'q' or choice == 'quit':
         tips = input('>>> 确定退出?(y) ')
         if tips == 'y' or tips == 'yes':
             break
     else:
-        print('>>> 输入有误, 请重新输入 ')
+        pass
 
 
 

@@ -25,7 +25,7 @@ def create_new_accounts():
             'login_status': 0, # 0 = not login, 1 = login
             'pay_bills': 0,  # 应还账单金额
             'balance': 0,  # 账户余额
-            'available_credit': 15000,  #　可用信用余额
+            'available_credit': 15000,  #　初始信用余额,固定不变
             'settlement_day': 2,  # 每月结算日期,生成上个月的账单
             'pay_day': payday,  # 每月最晚还款日
             'created_date': str(date.today()),
@@ -39,7 +39,7 @@ def create_new_accounts():
         f.close()
 
 
-def pay_back_withou_login(**kwargs):
+def pay_back_without_login(**kwargs):
     charge_amount = kwargs.get('charge_amount', '')
     credit_code = kwargs.get('credit_code', '')
     account = kwargs.get('account', '')
