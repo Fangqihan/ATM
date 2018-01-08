@@ -1,1 +1,1 @@
-{"created_date": "2018-01-07", "available_credit": 15000, "card_id": "888888", "expire_date": "2021-01-07", "pay_day": "7", "pay_bills": 0, "login_status": 0, "lock_status": 0, "settlement_day": 2, "password": "fqh202", "balance": 4002}
+{"expire_date": "2021-01-07", "pay_bills": 0, "login_status": 0, "pay_day": "22", "password": "fqh202", "settlement_day": 2, "card_id": "888888", "lock_status": 1, "available_credit": 15000, "balance": 735.0, "created_date": "2018-01-07"}

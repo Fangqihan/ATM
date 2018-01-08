@@ -15,14 +15,16 @@ from core import atm
 LOGIN_STATUS = 0
 ACCOUNT = {}
 
+login_info = {'status': 0, 'card_id': ''}
+
 
 def login(func, *args):
 
     def inner():
         global LOGIN_STATUS
         global ACCOUNT
+        global login_info
         if LOGIN_STATUS == 0:
-
             print('登录中'.center(25, '-'))
             credit_code = input('>>> 请输入您的信用卡卡号: ')
             if '%s.json'%credit_code in os.listdir(DATABASE.get('path')):
@@ -31,6 +33,7 @@ def login(func, *args):
                 ACCOUNT = account
                 account_password = account.get('password')
                 lock_status = account.get('lock_status')
+
                 if lock_status == 0:
                     count = 0
                     while count < 3:
@@ -70,14 +73,17 @@ def login(func, *args):
                     exit('>>> 对不起, 您的账户已被锁定, 请前往银行柜台解锁!')
 
                 elif lock_status == 2:
-                    choice = input('>>> 对不起, 您的信用卡已过期,是否重新办理?(y)')
-                    atm.create_new_accounts()
+                    choice = input('>>> 对不起, 您的信用卡已被过期,是否重新办理?(y)')
+                    if choice == 'y' or choice == 'yes':
+                        atm.create_new_accounts()
+
                 else:
                     pass
             else:
                 print('此信用卡账号没有开户记录')
 
         else:
+            print('ACCOUNT:', ACCOUNT)
             return func(account=ACCOUNT)
 
     return inner

@@ -20,14 +20,34 @@ def view_account_info(*args, **kwargs):
 @login
 def with_draw(*args, **kwargs):
     account = kwargs.get('account')
-    day = account.get('pay_day')
-    cash = input('>>> 请输入提款金额: ')
-    if account['balance'] - cash > 0:
-        account['balance'] -= cash
-    else:
-        print('>>> 账户可用不足,不能提现')
+    card_id = account.get('card_id')
+    while True:
+        withdraw_amount = input('>>> 请输入提款金额: ')
+        if withdraw_amount.isdigit():
+            withdraw_amount = int(withdraw_amount)
+            if int(withdraw_amount)*105/100 + account['pay_bills'] <= (account['balance'] + account['available_credit']):
+                if withdraw_amount < account['balance']:
+                    account['balance'] -= withdraw_amount*105/100
+                else:
+                    account['pay_bills'] = withdraw_amount*105/100 - account['balance'] + account['pay_bills']
+                    account['balance'] = 0
 
-    print('提现')
+                print('>>> 请取走现金，共计 %s 元' % withdraw_amount)
+                print('>>> 完成提现完成:账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
+                with open(DATABASE.get('path') + '/%s.json' % card_id, 'w') as f:
+                    json.dump(account, f)
+
+                choice = input('>>> 是否继续提现？(y)')
+                if choice == 'y' or choice == 'yes':
+                    pass
+                else:
+                    break
+
+            else:
+                print('>>> 账户余额和可用额度不足,不能提现')
+
+        else:
+            print('>>> 输入有误，请重新输入')
 
 
 @login
@@ -66,7 +86,6 @@ def transfer(*args, **kwargs):
     pay_bills = account.get('pay_bills')
     balance = account.get('balance')
     available_credit = account.get('available_credit')
-
     while True:
         to_card_id = input('>>> 请输入对方账号: ')
 
@@ -112,6 +131,47 @@ def transfer(*args, **kwargs):
             print('>>> 您输入的转账号码有误， 请重新输入')
 
 
-
 def disable_credit_card(*args, **kwargs):
-    pass
+    count = 0
+    account_backup = ''
+    while count < 3:
+        input_card_id = input('>>> 请输入您的信用卡账号：　')
+        if '%s.json' % input_card_id in os.listdir(DATABASE.get('path')):
+            file_name = DATABASE.get('path') + '/%s.json' % input_card_id
+            f = open(file_name, 'r')
+            account = json.load(f)
+            account_backup = account
+            password = account.get('password', '')
+            while count < 3:
+                input_pwd = input('>>> 请输入您的密码：　')
+                if input_pwd == password:
+                    print('登陆成功'.center(25, '-'))
+                    account['lock_status'] = 2
+                    with open(DATABASE.get('path') + '/%s.json' % input_card_id, 'w') as f:
+                        json.dump(account, f)
+                    print('>>> 账号(%s)已经成功挂失' % input_card_id)
+                    count = 3
+                else:
+                    count += 1
+        else:
+            print('>>> 您输入的信用卡账号不存在，请核对后重新输入')
+        count += 1
+
+    else:
+        account_backup['lock_status'] = 1
+        card_id = account_backup.get('card_id', '')
+        with open(DATABASE.get('path') + '/%s.json' % card_id, 'w') as f:
+            json.dump(account, f)
+        exit('>>> 对不起，　您的密码输入次数过多，已被锁定')
+
+
+
+
+
+
+
+
+
+
+
+
