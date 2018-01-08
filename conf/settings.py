@@ -7,6 +7,8 @@
 
 import os
 import sys
+import logging
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -24,3 +26,22 @@ DATABASE_MALL = {
     'name': 'goods_db',
     'path': "%s/shopping_mall/shopping_db" % BASE_DIR
 }
+
+
+LOG_LEVEL = logging.INFO
+LOG_PATH = "%s/log/" % BASE_DIR
+LOG_TYPES = {
+    'transaction': 'transactions.log',
+    'access': 'access.log',
+}
+
+TRANSACTION_TYPE = {
+    'repay': {'action': 'plus', 'interest': 0},
+    'withdraw': {'action': 'minus', 'interest': 0.05},
+    'transfer': {'action': 'minus', 'interest': 0.05},
+    'consume': {'action': 'minus', 'interest': 0},
+}
+
+
+
+

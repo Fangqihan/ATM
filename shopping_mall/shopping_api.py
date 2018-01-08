@@ -7,10 +7,13 @@
 
 import json
 import hashlib
+from collections import namedtuple
 
 from conf.settings import *
 from core.accounts_operations import checkout
 
+mall_login_status = 0
+goods = {}
 
 def init_goods_lst():
     goods = {
@@ -41,8 +44,6 @@ def init_super_usr_account():
     f.close()
 
 
-mall_login_status = 0
-goods = {}
 def is_superuser(func):
     def inner():
         global mall_login_status
@@ -127,30 +128,54 @@ def add_good(**kwargs):
 
 
 def go_shopping():
+    shopping_cart = []
     save_path = DATABASE_MALL.get('path')
     with open(save_path+'/goods.json', 'r') as f:
         goods = json.load(f)
+    print('欢迎来到ATM购物商城'.center(26, '-'))
     while True:
-        print('欢迎来到ATM购物商城'.center(26, '-'))
-        print('>>> 商品清单如下所示: ')
+        print('\n'+'>>> 商品清单如下所示: ')
         print('code'.ljust(6), 'name'.ljust(10), 'price')
         print(''.ljust(26, '-'))
         for k, v in goods.items():
             print(k.ljust(6), goods[k]['name'].ljust(10), goods[k]['price'])
         print(''.ljust(26, '-'))
 
-        choice = input('>>> 请选择要购买的商品(产品编号)： ')
-        if choice.isdigit():
-            if choice in goods.keys():
-                price = goods[choice]['price']
-                tips = input('>>> 确定购买%s, 价格　%s　元(y)? '%(goods[choice].get('name',''), goods[choice].get('price','')))
-                if tips == 'y' or tips == 'yes':
-                    checkout(payment_amount=price)
-            else:
-                print('>>> 商品编号输入有误,请重新输入')
-
+        choice = input('>>> 请选择要购买的商品(产品编号)/退出购物(q): ')
+        if choice == 'q' or choice == 'quit':
+            print('>>> 谢谢回顾！')
+            break
         else:
-            print('>>> 输入有误，请重新输入')
+            if choice.isdigit():
+                if choice in goods.keys():
+                    price = goods[choice]['price']
+                    product_name = goods[choice].get('name', '')
+                    tips = input('>>> 将商品%s加进购物车(1) 直接购买(2) 清空购物车(3) 请输入编号： ' % product_name)
+                    # shopping_list = namedtuple('shopping_list', ['code','name','price'])
+                    if tips == '1':
+                        shopping_cart.append((product_name, price))
+                    elif tips == '2':
+                        shopping_cart.append((product_name, price))
+                        payment_amount = 0
+                        print('此次购物清单如下'.center(25, '-'))
+                        for i in range(len(shopping_cart)):
+                            print(shopping_cart[i][0].ljust(10), shopping_cart[i][1])
+                            payment_amount += int(shopping_cart[i][1])
+                        print('>>> 合计 %s 元' % payment_amount)
+                        tips = input('是否立即结账?(y)  ')
+                        if tips == 'y' or tips == 'yes':
+                            checkout(payment_amount=payment_amount)
+                            shopping_cart = []
+                        else:
+                            print(shopping_cart)
 
-go_shopping()
+                    elif tips == '3':
+                        shopping_cart = []
+
+                else:
+                    print('>>> 商品编号输入有误,请重新输入')
+
+            else:
+                print('>>> 输入有误，请重新输入')
+
 

@@ -39,6 +39,7 @@ def login(func, *args):
 
                             if password == account_password:
                                 print('\n'+'登录成功'.center(25, '-'))
+
                                 LOGIN_STATUS = 1
                                 count = 3
                                 day = datetime.date.today().day
@@ -55,7 +56,8 @@ def login(func, *args):
                                     pay_day = int(account.get('pay_day'))
 
                                     if datetime.date.today().day >= pay_day:
-                                        return atm.pay_back_without_login(account=account)
+                                        print('>>> 对不起，您的信用卡已超过最迟还款期限，开始进行自动扣款')
+                                        return atm.pay_back_urgently(account=account)
 
                                     else:
                                         return func(account=account, day=day, payment_amount=payment_amount)
