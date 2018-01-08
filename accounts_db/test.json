@@ -1,1 +1,1 @@
-{"expire_date": "2021-01-07", "card_id": "test", "password": "test", "lock_status": 0, "pay_day": 11, "balance": 0, "login_status": 0, "pay_bills": 6998.0, "created_date": "2018-01-07", "settlement_day": 2, "available_credit": 15000}
+{"password": "test", "login_status": 0, "available_credit": 15000, "balance": 0, "pay_day": 11, "settlement_day": 2, "pay_bills": 7098.0, "created_date": "2018-01-07", "expire_date": "2021-01-07", "card_id": "test", "lock_status": 0}

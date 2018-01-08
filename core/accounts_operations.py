@@ -133,7 +133,7 @@ def transfer(*args, **kwargs):
 
 def disable_credit_card(*args, **kwargs):
     count = 0
-    account_backup = ''
+    account_backup = {}
     while count < 3:
         input_card_id = input('>>> 请输入您的信用卡账号：　')
         if '%s.json' % input_card_id in os.listdir(DATABASE.get('path')):
@@ -165,13 +165,61 @@ def disable_credit_card(*args, **kwargs):
         exit('>>> 对不起，　您的密码输入次数过多，已被锁定')
 
 
+@login
+def checkout(**kwargs):
+    payment_amount = float(kwargs.get('payment_amount', 0))
+    account = kwargs.get('account')
+    pay_bills = account.get('pay_bills')
+    balance = account.get('balance')
+    available_credit = account.get('available_credit')
+    card_id = account.get('card_id', '')
+
+    if payment_amount > available_credit - pay_bills + balance:
+        need_money = payment_amount - available_credit - pay_bills + balance
+        print('>>> 对不起，您的账户余额不足, 需至少充值%s 元' % need_money)
+
+        choice = input('>>> 是否充值?(y) ')
+        if choice == 'y' or choice == 'yes':
+            while True:
+                charge_money = input('>>> 请输入您要充值的金额: ')
+                if charge_money.isdigit():
+                    charge_money = float(charge_money)
+                    if charge_money >= need_money:
+                        account['balance'] = charge_money - need_money
+                        with open(DATABASE.get('path') + '/%s.json' % account['card_id'], 'w') as f:
+                            json.dump(account, f)
+                        print('>>> 付款成功,消费 %s 元' % payment_amount)
+                        print('>>> 您当前账户余额为(%s)元, 欠款 %s 元' % (account['balance'], account['pay_bills']))
+
+                        choice = input('>>> 退出购物? (q) ')
+                        if choice == 'q' or choice == 'quit':
+                            tips = input('>>> 确定退出? (y) ')
+                            if tips == 'y' or tips == 'yes':
+                                exit('>>> 欢迎下次再来!')
 
 
+                    else:
+                        print('>>> 充值金额不够，请重新输入')
 
+                else:
+                    print('>>> 金额输入有误')
 
+    else:
 
+        if payment_amount < balance:
+            account['balance'] = balance - payment_amount
+        else:
+            account['balance'] = 0
+            account['pay_bills'] = pay_bills + payment_amount - balance
 
+        print('>>> 付款成功,消费 %s 元' % payment_amount)
+        print('>>> 您当前账户余额为(%s)元, 欠款 %s 元'%(account['balance'], account['pay_bills']))
+        with open(DATABASE.get('path') + '/%s.json' % account['card_id'], 'w') as f:
+            json.dump(account, f)
 
-
-
+        choice = input('>>> 退出购物? (q) ')
+        if choice == 'q' or choice == 'quit':
+            tips = input('>>> 确定退出? (y) ')
+            if tips == 'y' or tips == 'yes':
+                exit('>>> 欢迎下次再来!')
 

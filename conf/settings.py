@@ -13,7 +13,14 @@ sys.path.append(BASE_DIR)
 
 
 DATABASE = {
-    'engine': 'file_storage', #support mysql,postgresql in the future
-    'name':'accounts_db',
+    # 'engine': 'file_storage', #support mysql,postgresql in the future
+    'name': 'accounts_db',
     'path': "%s/accounts_db" % BASE_DIR
+}
+
+
+DATABASE_MALL = {
+    # 'engine': 'file_storage', #support mysql,postgresql in the future
+    'name': 'goods_db',
+    'path': "%s/shopping_mall/shopping_db" % BASE_DIR
 }

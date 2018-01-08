@@ -5,209 +5,152 @@
 # @File    : shopping_cart_2nd_edition.py.py
 
 
-'''
-项目说明:
-目前没有用函数,全程逻辑判断if和while语句,所以难免有重复代码
-购物记录数据存储形式:{name: [pwd, salary, shopping_history]}
-本程序分为三种情况:
-    1.没有缓存文件
-    2.有缓存文件
-        2.1老用户登录
-        2.2新用户注册
-'''
+import json
+import hashlib
 
-import pickle
-import os
-from collections import deque
+from conf.settings import *
+from core.accounts_operations import checkout
 
 
+def init_goods_lst():
+    goods = {
+            '1': {"name": "mac_pro", "price": 9999},
+            '2': {"name": "mouse", "price": 10},
+            '3': {"name": 'book', "price": 70},
+            '4': {"name": "iphone", "price": 8888},
+            '5': {"name": "bottle", "price": 50},
+            '6': {"name": "shoe", "price": 399},
+            '7': {"name": "jacket", "price": 500},
+    }
 
-GOODS = [
-    {"name": "mac_pro", "price": 1999},
-    {"name": "mouse", "price": 10},
-    {"name": 'book', "price": 70},
-    {"name": "iphone", "price": 8888},
-    {"name": "bottle", "price": 50},
-    {"name": "shoe", "price": 399},
-    {"name": "jacket", "price": 500},
-]
+    save_path = DATABASE_MALL.get('path')
+    with open(save_path+'/goods.json', 'w') as f:
+        json.dump(goods, f)
 
-username = input('您的用户名: ')
-shopping_history = deque(maxlen=3)
-shopping_cart = []
 
-# 有缓存
-if os.path.exists('user_info.txt'):
-    USER_INFO = pickle.load(open('user_info.txt', 'rb'))
+def init_super_usr_account():
+    m = hashlib.md5()
+    m.update(b'lynnfang')
+    username = m.hexdigest()
+    m.update(b'fqh202')
+    password = m.hexdigest()
+    save_path = DATABASE_MALL.get('path')
+    f = open(save_path+'/super_user.json', 'w')
+    super_user = {'username': username, 'password': password}
+    json.dump(super_user, f)
+    f.close()
 
-    # 老用户登录
-    if username in USER_INFO.keys():
-        n = 0
-        while n < 3:  # 三次输入机会
-            password = input('您的密码: ')
-            n += 1
-            if password == USER_INFO[username][0]:
-                print('%s, 欢迎您登录'%username)
-                salary = USER_INFO[username][1]
-                print('您的账户余额: \033[1;31m%d\33[0m' % salary)
-                shopping_history = USER_INFO[username][2]
 
-                # 浏览记录提醒
-                history_tip = input('是否浏览之前的购买记录?(y|n)')
-                if history_tip == 'y' or history_tip == 'yes':
-                    print('最近三次的购买清单如下: ')
-                    for item in shopping_history:
-                        print(item)
+mall_login_status = 0
+goods = {}
+def is_superuser(func):
+    def inner():
+        global mall_login_status
 
-                flag = True
-                while flag:
-                    #提醒用户是否继续购买
-                    tip2 = input('退出请输入(q|quit),按任意键继续购物:  ')
-                    if tip2 == 'q' or tip2 == 'quit':
-                        flag = False
-                        n = 3
+        if mall_login_status == 0:
+            save_path = DATABASE_MALL.get('path')
+            with open(save_path+'/super_user.json', 'r') as f:
+                super_user_info = json.load(f)
+                username = super_user_info.get('username', '')
+                password = super_user_info.get('password', '')
+                count = 0
+                while count < 3:
+                    md_5 = hashlib.md5()
+                    input_username = input('>>> 请输入您的账号：　')
+                    input_pwd = input('>>> 请输入您的密码：　')
+
+                    md_5.update(input_username.encode('utf8'))
+                    input_username = md_5.hexdigest()
+                    md_5.update(input_pwd.encode('utf8'))
+                    input_pwd = md_5.hexdigest()
+
+                    if input_username == username and input_pwd == password:
+                        mall_login_status = 1
+                        goods_db_path = DATABASE_MALL.get('path')
+                        with open(goods_db_path + '/goods.json', 'r') as f:
+                            data = json.load(f)
+                            global goods
+                            goods = data
+                        return func(goods=data)
                     else:
-                        #打印商品列表
-                        print('商品列表'.center(25, '-'))
-                        print('code'.ljust(6), 'name'.ljust(10), 'price'.ljust(10))
-                        for i in range(len(GOODS)):
-                            print(str(i).ljust(6), GOODS[i]['name'].ljust(10),
-                                  str(GOODS[i]['price']).ljust(10))
+                        print('>>> 对不起，您的账号或密码错误，请重新输入')
+                        count += 1
 
-                        # 用户输入商品编码
-                        code = input('请输入商品的编码(0-%s的整数): ' % (len(GOODS)))
-                        if code.isdigit(): #判断输入的是否是数字
-                            code = int(code)
-                            # 判断编码是否超出索引范围
-                            if code in range(len(GOODS)):
-                                #判断用户余额是否充足
-                                if salary - GOODS[code]['price'] > 0:
-                                    salary -= GOODS[code].get('price')
-                                    shopping_cart.append(GOODS[code].get('name'))  # 将物品装进购物车
-                                else:
-                                    # 提示余额不足
-                                    tip1 = input('对不起,您的余额不足,是否充值?充值请输入y|yes, 按任意键退出购买')
-                                    if tip1 == 'y' or tip1 == 'yes':
-                                        charge = int(input('请输入你充值的金额(正整数): '))
-                                        if type(charge) == int:
-                                            if charge > 0:
-                                                salary += charge
-                                                print('%s,您的账户余额: \033[1;31m%d\33[0m' % (username, salary))
-                                    else:
-                                        flag = False
-                                        n = 3 #退出大循环
-                        else:
-                            print('此商品不存在,请重新选择!')
-
-                shopping_history.append(shopping_cart)
-                print('您本次购买的商品如下: \033[1;31m%s\33[0m' % ','.join(shopping_cart))
-                print('您的账户余额: \033[1;31m%d\33[0m' % salary)
-                USER_INFO[username] = [password, salary, shopping_history]
-                pickle.dump(USER_INFO, open('user_info.txt', 'wb'))
-
-            else:
-                print('密码有误, 请重新输入: ')
-
-    # 新用户注册
-    else:
-        password = input('您的密码:')
-        salary = int(input('请输入您的工资: '))
-        flag = True
-        while flag:
-            # 输出商品列表
-            print('商品列表'.center(25, '-'))
-            print('code'.ljust(6), 'name'.ljust(10), 'price'.ljust(10))
-            for i in range(len(GOODS)):
-                print(str(i).ljust(6), GOODS[i]['name'].ljust(10),
-                      str(GOODS[i]['price']).ljust(10))
-
-            # 用户输入商品编码
-            code = input('请输入商品的编码(0-%s的整数): ' % (len(GOODS)))  # 注意转换成int
-            if code.isdigit():
-                code = int(code)
-                # 判断编码是否超出索引范围
-                if code in range(len(GOODS)):
-                    # 判断余额是否充足
-                    if salary - GOODS[code]['price'] > 0:
-                        salary -= GOODS[code].get('price')
-                        shopping_cart.append(GOODS[code].get('name'))  # 将物品装进购物车
-                        tip = input('退出请输入(q|quit),按任意键继续购物:  ')  # 提示是否退出
-                        if tip == 'q' or tip == 'quit':
-                            flag = False
-                    else:
-                        # 提示余额不足
-                        tip1 = input('对不起,您的余额不足,是否充值?充值请输入y|yes, 按任意键退出购买')
-                        if tip1 == 'y' or tip1 == 'yes':
-                            charge = int(input('请输入你充值的金额(正整数): '))
-                            if type(charge) == int:
-                                if charge > 0:
-                                    salary += charge
-                                    print('%s,您的账户余额: \033[1;31m%d\33[0m' % (username, salary))
-                        else:
-                            flag = False
-                            n = 3  # 退出大循环
                 else:
-                    print('此商品不存在,请重新选择!')
+                    exit('>>> 对不起，您输入的密码次数过多')
 
-            else:
-                print('此商品不存在,请重新选择!')
-
-        shopping_history.append(shopping_cart)
-        print('您本次购买的商品如下: \033[1;31m%s\33[0m' % ','.join(shopping_cart))
-        print('您的账户余额: \033[1;31m%d\33[0m' % salary)
-        USER_INFO[username] = [password, salary, shopping_history]
-        pickle.dump(USER_INFO, open('user_info.txt', 'wb'))
-
-# 没有缓存文件,只有第一次运行时调用
-else:
-    USER_INFO = {}
-    shopping_cart = []
-    password = input('您的密码:')
-    salary = int(input('请输入您的工资: '))
-    flag = True
-    while flag:
-        # 输出商品列表
-        print('商品列表'.center(25, '-'))
-        print('code'.ljust(6), 'name'.ljust(10), 'price'.ljust(10))
-        for i in range(len(GOODS)):
-            print(str(i).ljust(6), GOODS[i]['name'].ljust(10),
-                  str(GOODS[i]['price']).ljust(10))
-
-        # 用户输入商品编码
-        code = input('请输入商品的编码(0-%s的整数): ' % (len(GOODS)))  # 注意转换成int
-        if code.isdigit():
-            # 判断编码是否超出索引范围
-            code = int(code)
-            if code in range(len(GOODS)):
-                # 判断余额是否充足
-                if salary - GOODS[code]['price'] > 0:
-                    salary -= GOODS[code].get('price')
-                    shopping_cart.append(GOODS[code].get('name'))  # 将物品装进购物车
-                    tip = input('退出请输入(q|quit),按任意键继续购物:  ')  # 提示是否退出
-                    if tip == 'q' or tip == 'quit':
-                        flag = False
-                else:
-                    # 提示余额不足
-                    tip1 = input('对不起,您的余额不足,是否充值?充值请输入y|yes, 按任意键退出购买')
-                    if tip1 == 'y' or tip1 == 'yes':
-                        charge = int(input('请输入你充值的金额(正整数): '))
-                        if type(charge) == int:
-                            if charge > 0:
-                                salary += charge
-                                print('%s,您的账户余额: \033[1;31m%d\33[0m' % (username, salary))
-                    else:
-                        flag = False
-                        n = 3  # 退出大循环
-            else:
-                print('此商品不存在,请重新选择!')
         else:
-            print('此商品不存在,请重新选择!')
+            return func(goods)
 
-    shopping_history.append(shopping_cart)
-    print('您本次购买的商品如下: \033[1;31m%s\33[0m' % ','.join(shopping_cart))
-    print('您的账户余额: \033[1;31m%d\33[0m' % salary)
+    return inner
 
-    USER_INFO[username] = [password, salary, shopping_history]
-    pickle.dump(USER_INFO, open('user_info.txt', 'wb'))
 
+@is_superuser
+def edit_goods_lst(**kwargs):
+    goods = kwargs.get('goods')
+    while True:
+        code = input('>>> 输入您要修改的产品的编号: ')
+        if code.isdigit():
+            if code in goods.keys():
+                product_info = goods.get(code)
+                print('产品名称: %s  价格: %s 元' % (product_info.get('name'), product_info.get('price')))
+                choice = input('修改价格？（y）')
+                if choice == 'y' or choice == 'yes':
+                    new_price = input('>>> 输入新价格: ')
+                    if new_price.isdigit():
+                        goods[code]['price'] = new_price
+                        save_path = DATABASE_MALL.get('path')
+                        with open(save_path + '/goods.json', 'w') as f:
+                            json.dump(goods, f)
+                        print('>>> 修改完成, 产品名称: %s  价格: %s 元'%(goods[code]['name'], goods[code]['price']))
+
+                    else:
+                        print('>>> 输入有误')
+
+            else:
+                print('>>> 您输入的产品编码不存在')
+        else:
+            print('>>> 编码必须为数字')
+
+        choice = input('>>> 是否退出？(q)')
+        if choice == 'q' or choice == 'quit':
+            break
+        else:
+            pass
+
+
+@is_superuser
+def add_good(**kwargs):
+    goods = kwargs.get('goods')
+    print(goods)
+    print('增加新产品')
+
+
+def go_shopping():
+    save_path = DATABASE_MALL.get('path')
+    with open(save_path+'/goods.json', 'r') as f:
+        goods = json.load(f)
+    while True:
+        print('欢迎来到ATM购物商城'.center(26, '-'))
+        print('>>> 商品清单如下所示: ')
+        print('code'.ljust(6), 'name'.ljust(10), 'price')
+        print(''.ljust(26, '-'))
+        for k, v in goods.items():
+            print(k.ljust(6), goods[k]['name'].ljust(10), goods[k]['price'])
+        print(''.ljust(26, '-'))
+
+        choice = input('>>> 请选择要购买的商品(产品编号)： ')
+        if choice.isdigit():
+            if choice in goods.keys():
+                price = goods[choice]['price']
+                tips = input('>>> 确定购买%s, 价格　%s　元(y)? '%(goods[choice].get('name',''), goods[choice].get('price','')))
+                if tips == 'y' or tips == 'yes':
+                    checkout(payment_amount=price)
+            else:
+                print('>>> 商品编号输入有误,请重新输入')
+
+        else:
+            print('>>> 输入有误，请重新输入')
+
+go_shopping()
 
