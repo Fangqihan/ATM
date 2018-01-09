@@ -27,7 +27,6 @@ DATABASE_MALL = {
     'path': "%s/shopping_mall/shopping_db" % BASE_DIR
 }
 
-
 LOG_LEVEL = logging.INFO
 LOG_PATH = "%s/log/" % BASE_DIR
 LOG_TYPES = {
@@ -35,12 +34,9 @@ LOG_TYPES = {
     'access': 'access.log',
 }
 
-TRANSACTION_TYPE = {
-    'repay': {'action': 'plus', 'interest': 0},
-    'withdraw': {'action': 'minus', 'interest': 0.05},
-    'transfer': {'action': 'minus', 'interest': 0.05},
-    'consume': {'action': 'minus', 'interest': 0},
-}
+ACCESS_TYPE = ['login', 'logout', 'create_account', 'disable', 'locked']
+
+# TRANSACTION_TYPE = ['transfer', 'receive', ]
 
 
 

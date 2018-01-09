@@ -11,6 +11,7 @@ import os
 
 from conf.settings import DATABASE
 from core import atm
+from core.logger import log_generate
 
 LOGIN_STATUS = 0
 ACCOUNT = {}
@@ -22,6 +23,7 @@ def login(func, *args):
         global LOGIN_STATUS
         global ACCOUNT
         payment_amount = kwargs.get('payment_amount', 0)
+
         if LOGIN_STATUS == 0:
             print('登录中'.center(25, '-'))
             count = 0
@@ -30,16 +32,16 @@ def login(func, *args):
                 if '%s.json'%credit_code in os.listdir(DATABASE.get('path')):
                     f = open(DATABASE.get('path')+'/%s.json'%credit_code, 'r')
                     account = json.load(f)
+                    card_id = account.get('card_id', '')
                     ACCOUNT = account
                     account_password = account.get('password')
                     lock_status = account.get('lock_status')
                     if lock_status == 0:
                         while count < 3:
                             password = input('>>> 请输入您的密码: ')
-
                             if password == account_password:
+                                log_generate(log_type='access', card_id=card_id, message='login')
                                 print('\n'+'登录成功'.center(25, '-'))
-
                                 LOGIN_STATUS = 1
                                 count = 3
                                 day = datetime.date.today().day
@@ -56,7 +58,7 @@ def login(func, *args):
                                     pay_day = int(account.get('pay_day'))
 
                                     if datetime.date.today().day >= pay_day:
-                                        print('>>> 对不起，您的信用卡已超过最迟还款期限，开始进行自动扣款')
+                                        print('>>> 系统检测到您的信用卡已超过最迟还款期限，开始进行自动扣款')
                                         return atm.pay_back_urgently(account=account)
 
                                     else:
@@ -90,9 +92,30 @@ def login(func, *args):
                 exit('>>> 对不起，　您的密码输入次数过多，已被锁定')
 
         else:
-            return func(account=ACCOUNT, payment_amount=payment_amount)
+            choice = input('>>> 是否退出当前账户(q): ')
+            if choice == 'q' or choice == 'quit':
+                log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
+                LOGIN_STATUS = 0
+            else:
+                return func(account=ACCOUNT, payment_amount=payment_amount)
 
     return inner
 
+
+def logout():
+    global LOGIN_STATUS
+    if ACCOUNT:
+        LOGIN_STATUS = 0
+        log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
+    choice = input('>>> 确定退出ATM？(q)')
+    if choice == 'q' or choice == 'quit':
+        exit('>>> 欢迎下次光临！')
+
+
+def check_login():
+    if LOGIN_STATUS == 0:
+        return 0
+    else:
+        return 1
 
 

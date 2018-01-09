@@ -8,8 +8,8 @@
 from core import atm
 from core.accounts_operations import *
 from shopping_mall import shopping_api
+from core.auth import logout
 
-# print('>>> 6. 日常消费流水打印')
 
 while True:
     print('欢迎来到ATM终端操作界面'.center(20, '-'))
@@ -17,10 +17,10 @@ while True:
     print('>>> 2. 账户信息查询')
     print('>>> 3. 转账')
     print('>>> 4. 提现')
-    print('>>> 5. 还款')
-    print('>>> 6. 临时挂失')
+    print('>>> 5. 还款|充值')
+    print('>>> 6. 挂失')
     print('>>> 7. 购物')
-    print('>>> 8. 退出', end='\n\n')
+    print('>>> 8. 退出', end='\n')
 
     choice = input('>>> 请输入业务代码: ')
 
@@ -48,23 +48,9 @@ while True:
             shopping_api.go_shopping()
 
         elif int(choice) == 8:
-            tips = input('>>> 是否退出ATM(y): ')
-            if tips == 'y' or tips == 'yes':
-                exit('>>> 退出ATM')
+            tips = input('>>> 退出? (q): ')
+            if tips == 'q' or tips == 'quit':
+                logout()
         else:
             print('>>> 输入有误, 请重新输入 ')
-
-    # choice1 = input('>>> 是否退出ATM？(q) ')
-    # if choice1 == 'q' or choice == 'quit':
-    #     tips = input('>>> 确定退出?(y) ')
-    #     if tips == 'y' or tips == 'yes':
-    #         exit('>>> 退出ATM')
-    # else:
-    #     pass
-
-
-
-
-
-
 
