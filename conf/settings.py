@@ -36,8 +36,5 @@ LOG_TYPES = {
 
 ACCESS_TYPE = ['login', 'logout', 'create_account', 'disable', 'locked']
 
-# TRANSACTION_TYPE = ['transfer', 'receive', ]
-
-
-
+TRANSACTION_TYPE = ['transfer', 'receive', 'withdraw', 'charge', 'pay_back', 'consume']
 

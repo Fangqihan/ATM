@@ -4,7 +4,6 @@
 # @Email   : qihanfang@foxmail.com
 # @File    : management.py
 
-
 from core import atm
 from core.accounts_operations import *
 from shopping_mall import shopping_api
@@ -12,21 +11,22 @@ from core.auth import logout
 
 
 while True:
-    print('欢迎来到ATM终端操作界面'.center(20, '-'))
-    print('>>> 1. 办理信用卡')
-    print('>>> 2. 账户信息查询')
-    print('>>> 3. 转账')
-    print('>>> 4. 提现')
-    print('>>> 5. 还款|充值')
-    print('>>> 6. 挂失')
-    print('>>> 7. 购物')
-    print('>>> 8. 退出', end='\n')
+    print('欢迎来到ATM终端操作界面'.center(30, '-'))
+    print('1. 办理信用卡')
+    print('2. 账户信息查询')
+    print('3. 转账')
+    print('4. 提现')
+    print('5. 还款|充值')
+    print('6. 购物')
+    print("7. 打印账户消费记录")
+    print('8. 挂失')
+    print('9. 退出', end='\n')
 
-    choice = input('>>> 请输入业务代码: ')
+    choice = input('\n'+'>>> 请输入业务代码: ')
 
     if choice.isdigit():
         if int(choice) == 1:
-            print('欢迎开户'.center(20, '-'))
+            print('\n'+'欢迎开户'.center(30, '-'))
             atm.create_new_accounts()
 
         elif int(choice) == 2:
@@ -41,16 +41,20 @@ while True:
         elif int(choice) == 5:
             pay_back()
 
-        elif int(choice) == 6:
+        elif int(choice) == 8:
             disable_credit_card()
 
-        elif int(choice) == 7:
+        elif int(choice) == 6:
             shopping_api.go_shopping()
 
-        elif int(choice) == 8:
-            tips = input('>>> 退出? (q): ')
+        elif int(choice) == 9:
+            tips = input('>>> 退出本账号? (q): ')
             if tips == 'q' or tips == 'quit':
                 logout()
+
+        elif int(choice) == 7:
+            output_transaction_records()
+
         else:
             print('>>> 输入有误, 请重新输入 ')
 

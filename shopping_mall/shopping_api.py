@@ -15,35 +15,6 @@ from core.accounts_operations import checkout
 mall_login_status = 0
 goods = {}
 
-def init_goods_lst():
-    goods = {
-            '1': {"name": "mac_pro", "price": 9999},
-            '2': {"name": "mouse", "price": 10},
-            '3': {"name": 'book', "price": 70},
-            '4': {"name": "iphone", "price": 8888},
-            '5': {"name": "bottle", "price": 50},
-            '6': {"name": "shoe", "price": 399},
-            '7': {"name": "jacket", "price": 500},
-    }
-
-    save_path = DATABASE_MALL.get('path')
-    with open(save_path+'/goods.json', 'w') as f:
-        json.dump(goods, f)
-
-
-def init_super_usr_account():
-    m = hashlib.md5()
-    m.update(b'lynnfang')
-    username = m.hexdigest()
-    m.update(b'fqh202')
-    password = m.hexdigest()
-    save_path = DATABASE_MALL.get('path')
-    f = open(save_path+'/super_user.json', 'w')
-    super_user = {'username': username, 'password': password}
-    json.dump(super_user, f)
-    f.close()
-
-
 def is_superuser(func):
     def inner():
         global mall_login_status
@@ -150,7 +121,7 @@ def go_shopping():
                 if choice in goods.keys():
                     price = goods[choice]['price']
                     product_name = goods[choice].get('name', '')
-                    tips = input('>>> 将商品%s加进购物车(1) 直接购买(2) 清空购物车(3) 请输入编号： ' % product_name)
+                    tips = input('>>> 将商品%s加进购物车(\033[1;35m (1)\033[0m) 直接购买\033[1;35m (2)\033[0m 清空购物车\033[1;35m (3)\033[0m 请输入编号： ' % product_name)
                     # shopping_list = namedtuple('shopping_list', ['code','name','price'])
                     if tips == '1':
                         shopping_cart.append((product_name, price))
@@ -178,4 +149,30 @@ def go_shopping():
             else:
                 print('>>> 输入有误，请重新输入')
 
+# def init_goods_lst():
+#     goods = {
+#             '1': {"name": "mac_pro", "price": 9999},
+#             '2': {"name": "mouse", "price": 10},
+#             '3': {"name": 'book', "price": 70},
+#             '4': {"name": "iphone", "price": 8888},
+#             '5': {"name": "bottle", "price": 50},
+#             '6': {"name": "shoe", "price": 399},
+#             '7': {"name": "jacket", "price": 500},
+#     }
+#
+#     save_path = DATABASE_MALL.get('path')
+#     with open(save_path+'/goods.json', 'w') as f:
+#         json.dump(goods, f)
 
+
+# def init_super_usr_account():
+#     m = hashlib.md5()
+#     m.update(b'lynnfang')
+#     username = m.hexdigest()
+#     m.update(b'fqh202')
+#     password = m.hexdigest()
+#     save_path = DATABASE_MALL.get('path')
+#     f = open(save_path+'/super_user.json', 'w')
+#     super_user = {'username': username, 'password': password}
+#     json.dump(super_user, f)
+#     f.close()
