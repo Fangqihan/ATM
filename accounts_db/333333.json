@@ -1,1 +1,1 @@
-{"settlement_day": 2, "expire_date": "2021-01-09", "created_date": "2018-01-09", "login_status": 0, "lock_status": 0, "pay_bills": 12640.0, "available_credit": 15000, "card_id": "333333", "balance": 799.85, "pay_day": 23, "password": "abc"}
+{"balance": 1810.85, "password": "abc", "card_id": "333333", "expire_date": "2021-01-09", "lock_status": 1, "pay_bills": 12640.0, "settlement_day": 2, "created_date": "2018-01-09", "login_status": 0, "pay_day": 23, "available_credit": 15000}

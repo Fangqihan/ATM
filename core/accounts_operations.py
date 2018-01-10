@@ -41,9 +41,9 @@ def with_draw(*args, **kwargs):
                     log_generate(log_type='transaction', card_id=card_id,
                                  message={'type': 'withdraw', 'amount': withdraw_amount, 'info': 'from_pay_bills'})
 
-                print('\033[1;35m -----提款完成-------\033[0m:')
+                print('\n\033[1;35m -----提款完成-------\033[0m:')
                 print('>>> 请取走现金，共计 %s 元' % withdraw_amount)
-                print('>>> 完成提现完成:账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
+                print('>>> 账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
                 with open(DATABASE.get('path') + '/%s.json' % card_id, 'w') as f:
                     json.dump(account, f)
 
@@ -90,7 +90,7 @@ def pay_back(**kwargs):
             print('>>> 还款完成:账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
 
     else:
-        choice = input('>>> 扣款完成，继续充值？（y）')
+        choice = input('>>> 扣款完成，继续充值？\033[1;35m (y) \033[0m: ')
         if choice == 'y' or choice == 'yes':
             pay_amount = int(input('>>> 请输入充值金额: '))
             log_generate(log_type='transaction', card_id=card_id,
@@ -110,53 +110,71 @@ def transfer(*args, **kwargs):
     card_id = account.get('card_id', '')
     while True:
         to_card_id = input('>>> 请输入对方账号: ')
-
         if '%s.json' % to_card_id in os.listdir(DATABASE.get('path')):
+
             if to_card_id != card_id:
-                transfer_amount = input('>>> 请输入汇款金额: ')
-                if transfer_amount.isdigit():
-                    transfer_amount = int(transfer_amount)
+                with open(DATABASE.get('path') + '/%s.json' % to_card_id, 'r') as f_to:
+                    to_account = json.load(f_to)
+                    lock_status = to_account.get('lock_status', '')
+                    if lock_status == 0:
+                        transfer_amount = input('>>> 请输入汇款金额: ')
+                        if transfer_amount.isdigit():
+                            transfer_amount = int(transfer_amount)
 
-                    if transfer_amount >= available_credit - pay_bills + balance:
-                        print('>>> 对不起，您的账户余额不足, 请重新输入')
+                            if transfer_amount >= available_credit - pay_bills + balance:
+                                print('>>>\033[1;35m 对不起，您的账户余额不足, 请重新输入\033[0m')
 
-                    else:
-                        f_to = open(DATABASE.get('path') + '/%s.json' % to_card_id, 'r')
-                        to_account = json.load(f_to)
+                            else:
+                                f_to = open(DATABASE.get('path') + '/%s.json' % to_card_id, 'r')
+                                to_account = json.load(f_to)
 
-                        if transfer_amount < balance:
-                            account['balance'] = balance - transfer_amount
+                                if transfer_amount < balance:
+                                    account['balance'] = balance - transfer_amount
+
+                                else:
+                                    account['balance'] = 0
+                                    account['pay_bills'] = pay_bills + transfer_amount - balance
+
+                                to_account['balance'] = to_account['balance'] + transfer_amount
+                                log_generate(log_type='transaction', card_id=card_id,
+                                             message={'type': 'transfer', 'amount': transfer_amount, 'info': 'to_'+to_card_id})
+                                log_generate(log_type='transaction', card_id=to_card_id,
+                                             message={'type': 'receive', 'amount': transfer_amount, 'info': 'from_'+card_id})
+                                print('\n'+'>>> 转账成功,向卡号(%s)转账 %s 元'%(to_account['card_id'], transfer_amount))
+                                print('>>> 您当前账户余额为(%s)元, 欠款 %s 元'%(account['balance'], account['pay_bills']))
+
+                                with open(DATABASE.get('path') + '/%s.json' % to_card_id, 'w') as f_to1:
+                                    json.dump(to_account, f_to1)
+                                with open(DATABASE.get('path') + '/%s.json' % account['card_id'], 'w') as f:
+                                    json.dump(account, f)
+
+                                choice = input('>>> 继续转账?\033[1;35m (y)\033[0m: ')
+                                print()
+                                if choice == 'yes' or choice == 'y':
+                                    pass
+                                else:
+                                    break
 
                         else:
-                            account['balance'] = 0
-                            account['pay_bills'] = pay_bills + transfer_amount - balance
-
-                        to_account['balance'] = to_account['balance'] + transfer_amount
-                        log_generate(log_type='transaction', card_id=card_id,
-                                     message={'type': 'transfer', 'amount': transfer_amount, 'info': 'to_'+to_card_id})
-                        log_generate(log_type='transaction', card_id=to_card_id,
-                                     message={'type': 'receive', 'amount': transfer_amount, 'info': 'from_'+card_id})
-                        print('\n'+'>>> 转账成功,向卡号(%s)转账 %s 元'%(to_account['card_id'], transfer_amount))
-                        print('>>> 您当前账户余额为(%s)元, 欠款 %s 元'%(account['balance'], account['pay_bills']))
-
-                        with open(DATABASE.get('path') + '/%s.json' % to_card_id, 'w') as f_to1:
-                            json.dump(to_account, f_to1)
-                        with open(DATABASE.get('path') + '/%s.json' % account['card_id'], 'w') as f:
-                            json.dump(account, f)
-
-                        choice = input('>>> 继续转账?(y)')
-                        print()
-                        if choice == 'yes' or choice == 'y':
+                            print('>>> \033[1;35m 金额输入有误，请重新输入\033[0m')
+                    else:
+                        print('\033[1;35m 对不起,对方的账号已经冻结,无法转账 \033[0m')
+                        choice = input('更换卡号?\033[1;35m (y)\033[0m: ')
+                        if choice == 'y' or choice == 'yes':
                             pass
                         else:
                             break
 
-                else:
-                    print('>>> 金额输入有误，请重新输入')
             else:
                 print('>>> 不能给自身账号充值, 请重新输入！')
+
         else:
             print('>>> 您输入的转账号码有误， 请重新输入')
+
+    # print('\033[1;35m 对不起,对方的账号已经冻结,无法转账 \033[0m')
+    # choice = input('更换卡号?(y): ')
+    # if choice == 'y' or choice == 'yes':
+
 
 
 @login
@@ -199,7 +217,7 @@ def checkout(**kwargs):
                         log_generate(log_type='transaction', card_id=card_id,
                                      message={'type': 'consume', 'amount': payment_amount, 'info':''})
 
-                        input('>>> 付款成功,消费 %s 元' % payment_amount)
+                        input('>>> 付款成功,消费\033[1;35m %s \033[0m: 元' % payment_amount)
                         print('>>> 您当前账户余额为(%s)元, 欠款 %s 元' % (account['balance'], account['pay_bills']))
 
                         choice = input('>>> 退出购物?\033[1;35m  (q) \033[0m ')
@@ -288,6 +306,9 @@ def output_transaction_records(**kwargs):
             else:
                 print('>>> 日期有误,请重新输入')
 
+            choice = input('>>> 退出查询\033[1;35m (q)\033[0m:: ')
+            if choice == 'q' or choice == 'quit':
+                break
 
     else:
         print('>>> 对不起,该账号创建时间不详,无法对齐进行查询')
