@@ -4,10 +4,11 @@
 # @Email   : qihanfang@foxmail.com
 # @File    : management.py
 
+
 from core import atm
 from core.accounts_operations import *
-from shopping_mall import shopping_api
 from core.auth import logout
+from shopping_mall import shopping_api
 
 
 while True:
