@@ -104,8 +104,10 @@ def login(func, *args):
     return inner
 
 
-def logout():
+def logout(**kwargs):
     global LOGIN_STATUS
+    if kwargs:
+        LOGIN_STATUS = kwargs.get('LOGIN_STATUS')
     if LOGIN_STATUS == 1:
         tips = input('>>> 退出本账号?\033[1;35m (q)\033[0m: ')
         if tips == 'q' or tips == 'quit':

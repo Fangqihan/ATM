@@ -51,8 +51,6 @@ while True:
             shopping_api.go_shopping()
 
         elif int(choice) == 9:
-            # tips = input('>>> 退出本账号? (q): ')
-            # if tips == 'q' or tips == 'quit':
             logout()
 
         elif int(choice) == 7:

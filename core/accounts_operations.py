@@ -171,23 +171,18 @@ def transfer(*args, **kwargs):
         else:
             print('>>> 您输入的转账号码有误， 请重新输入')
 
-    # print('\033[1;35m 对不起,对方的账号已经冻结,无法转账 \033[0m')
-    # choice = input('更换卡号?(y): ')
-    # if choice == 'y' or choice == 'yes':
-
-
 
 @login
 def disable_credit_card(*args, **kwargs):
     account = kwargs.get('account')
-    choice = input('继续锁定该账号?(\033[1;35m (y)\033[0m): ')
+    choice = input('继续锁定该账号?\033[1;35m (y)\033[0m: ')
     if choice == 'y' or choice == 'yes':
         account['lock_status'] = 1
         card_id = account.get('card_id', '')
         with open(DATABASE.get('path') + '/%s.json' % card_id, 'w') as f:
             json.dump(account, f)
         log_generate(log_type='access', card_id=card_id, message='locked')
-        logout()
+        logout(LOGIN_STATUS=0)
 
 
 @login
@@ -273,7 +268,7 @@ def output_transaction_records(**kwargs):
         print('开始查询月度消费记录'.center(20, '-'))
         while True:
             year_str = input('>>> 请输入年: ')
-            month_str = input('>>> 请输入月份：　')
+            month_str = input('>>> 请输入月份: ')
 
             if year_str.isdigit() and month_str.isdigit():
 
