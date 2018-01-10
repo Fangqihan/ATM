@@ -34,12 +34,12 @@ def with_draw(*args, **kwargs):
                 if withdraw_amount < account['balance']:
                     account['balance'] -= withdraw_amount*105/100
                     log_generate(log_type='transaction', card_id=card_id,
-                                 message={'type': 'withdraw', 'amount': -withdraw_amount, 'info': 'from_balance'})
+                                 message={'type': 'withdraw', 'amount': withdraw_amount, 'info': 'from_balance'})
                 else:
                     account['pay_bills'] = withdraw_amount*105/100 - account['balance'] + account['pay_bills']
                     account['balance'] = 0
                     log_generate(log_type='transaction', card_id=card_id,
-                                 message={'type': 'withdraw', 'amount': -withdraw_amount, 'info': 'from_pay_bills'})
+                                 message={'type': 'withdraw', 'amount': withdraw_amount, 'info': 'from_pay_bills'})
 
                 print('>>> 请取走现金，共计 %s 元' % withdraw_amount)
                 print('>>> 完成提现完成:账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
