@@ -4,6 +4,8 @@
 # @Email   : qihanfang@foxmail.com
 # @File    : management.py
 
+import os
+import sys
 
 from core import atm
 from core.accounts_operations import *
@@ -49,9 +51,9 @@ while True:
             shopping_api.go_shopping()
 
         elif int(choice) == 9:
-            tips = input('>>> 退出本账号? (q): ')
-            if tips == 'q' or tips == 'quit':
-                logout()
+            # tips = input('>>> 退出本账号? (q): ')
+            # if tips == 'q' or tips == 'quit':
+            logout()
 
         elif int(choice) == 7:
             output_transaction_records()

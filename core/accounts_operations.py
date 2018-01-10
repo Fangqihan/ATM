@@ -41,12 +41,13 @@ def with_draw(*args, **kwargs):
                     log_generate(log_type='transaction', card_id=card_id,
                                  message={'type': 'withdraw', 'amount': withdraw_amount, 'info': 'from_pay_bills'})
 
+                print('\033[1;35m -----提款完成-------\033[0m:')
                 print('>>> 请取走现金，共计 %s 元' % withdraw_amount)
                 print('>>> 完成提现完成:账户余额 %s 元, 待还款 %s 元' % (account['balance'], account['pay_bills']), end='\n\n')
                 with open(DATABASE.get('path') + '/%s.json' % card_id, 'w') as f:
                     json.dump(account, f)
 
-                choice = input('>>> 是否继续提现？(y)')
+                choice = input('>>> 是否继续提现？\033[1;35m (y) \033[0m: ')
                 if choice == 'y' or choice == 'yes':
                     pass
                 else:

@@ -106,12 +106,18 @@ def login(func, *args):
 
 def logout():
     global LOGIN_STATUS
-    if ACCOUNT:
-        LOGIN_STATUS = 0
-        log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
-    choice = input('>>> 确定退出ATM？\033[1;35m (q)\033[0m:')
-    if choice == 'q' or choice == 'quit':
-        exit('>>> 欢迎下次光临！')
+    if LOGIN_STATUS == 1:
+        tips = input('>>> 退出本账号?\033[1;35m (q)\033[0m: ')
+        if tips == 'q' or tips == 'quit':
+            LOGIN_STATUS = 0
+            log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
+            choice = input('>>> 确定退出ATM?\033[1;35m (q)\033[0m:')
+            if choice == 'q' or choice == 'quit':
+                exit('>>> 欢迎下次光临！')
+    else:
+        choice = input('>>> 确定退出ATM?\033[1;35m (q)\033[0m:')
+        if choice == 'q' or choice == 'quit':
+            exit('>>> 欢迎下次光临！')
 
 
 def check_login():
