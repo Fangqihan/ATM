@@ -41,7 +41,7 @@ def login(func):
                             password = input('>>> 请输入您的密码: ')
                             if password == account_password:
                                 log_generate(log_type='access', card_id=card_id, message='login')
-                                print('\n'+'登录成功'.center(25, '-'))
+                                print('\n'+'登录成功'.center(30, '-'))
                                 LOGIN_STATUS = 1
                                 count = 3
                                 day = datetime.date.today().day

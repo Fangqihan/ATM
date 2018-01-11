@@ -249,7 +249,6 @@ def output_transaction_records(**kwargs):
     account = kwargs.get('account')
     card_id = account.get('card_id', '')
     created_date_original = ''
-    search_result = []
     # 找到账户对应的创建时间
     f = open(LOG_PATH + LOG_TYPES['access'], 'r')
     for line in f:
@@ -265,17 +264,18 @@ def output_transaction_records(**kwargs):
         created_date = datetime.date(year=created_date.year, month=created_date.month, day=1)  # 转换成date类型,仅仅比较年月
         present_date = datetime.date.today()
         present_date = datetime.date(year=present_date.year, month=present_date.month, day=1)
-        print('开始查询月度消费记录'.center(20, '-'))
-        while True:
+        print('开始查询月度消费记录'.center(30, '-'))
+        flag = 1
+        while flag:
             year_str = input('>>> 请输入年: ')
             month_str = input('>>> 请输入月份: ')
-
+            search_result = []
             if year_str.isdigit() and month_str.isdigit():
 
-                if isinstance(eval(year_str), int) and isinstance(eval(month_str), int) and eval(year_str) in range(1970,
-                                                                                                                    2050) and eval(
-                        month_str) in range(1, 13):
+                if isinstance(eval(year_str), int) and isinstance(eval(month_str), int) \
+                        and eval(year_str) in range(1970, 2050) and eval(month_str) in range(1, 13):
                     search_date = datetime.date(year=int(year_str), month=int(month_str), day=1)
+
                     if created_date <= search_date and present_date >= search_date:
                         f1 = open(LOG_PATH + LOG_TYPES['transaction'], 'r')
                         for line in f1:
@@ -286,27 +286,34 @@ def output_transaction_records(**kwargs):
                                 if line[3] == card_id:
                                     search_result.append(line)
                         search_result = [' '.join(i) for i in search_result]
+                        print('\n'+'查询结果如下'.center(30, '-'))
                         for i in search_result:
                             print(i, end='\n')
-                        choice = input('>>> 退出查询(q): ')
-                        if choice == 'q' or choice == 'quit':
-                            break
+                        print()
+                        while True:
+                            choice = input('>>> 1.退出查询 2.继续:  ')
+                            if choice == '1':
+                                flag = 0
+                                break
+                            elif choice == '2':
+                                break
+                            else:
+                                pass
 
                     else:
                         print('查询日期有误,请重新输入, 必须在注册日期%s之后' % str(created_date_original))
-
                 else:
-                    print('>>> 日期有误,请重新输入')
+                    print('>>> \033[1;34m 日期有误,请重新输入 \033[0m')
 
             else:
-                print('>>> 日期有误,请重新输入')
+                print('>>> \033[1;34m 日期有误,请重新输入 \033[0m')
 
-            choice = input('>>> 退出查询\033[1;35m (q)\033[0m:: ')
-            if choice == 'q' or choice == 'quit':
-                break
+            # choice = input('>>> 退出查询\033[1;35m (q)\033[0m:: ')
+            # if choice == 'q' or choice == 'quit':
+            #     break
 
     else:
-        print('>>> 对不起,该账号创建时间不详,无法对齐进行查询')
+        print('>>> \033[1;34m 对不起,该账号创建时间不详,无法对齐进行查询 \033[0m')
 
 
 
