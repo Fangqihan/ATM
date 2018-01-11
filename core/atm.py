@@ -68,29 +68,5 @@ def create_new_accounts():
         tip = input('>>> \033[1;34m 对不起，在登录状态下无法开户,请先退出本账号 \033[0m\n')
 
 
-def pay_back_urgently(**kwargs):
-    account = kwargs.get('account', '')
+def pay_back_urgently(account):
     pay_back(account=account)
-
-    # charge_amount = kwargs.get('charge_amount', '')
-    # account = kwargs.get('account', '')
-    # credit_code = account.get('card_id', '')
-    # pay_bills = account.get('pay_bills', 0)
-    # balance = account.get('balance', 0)
-    #
-    # if balance > pay_bills:
-    #     print('>>> 您的账户余额充足，无需还款')
-    # else:
-    #     print('>>> 您应还账单金额合计: %s 元' % pay_bills)
-    #     min_charge_amount = pay_bills - balance
-    #     while True:
-    #         pay_amount = int(input('>>> 请输入还款金额: '))
-    #         if pay_amount < min_charge_amount:
-    #             print('>>> 充值不足还款, 请重新充值!')
-    #         else:
-    #             account['pay_bills'] = 0
-    #             account['balance'] = pay_amount - min_charge_amount
-    #             with open(DATABASE.get('path') + '/%s.json' % credit_code, 'w') as f3:
-    #                 json.dump(account, f3)
-    #             print('>>> 充值完成, 账户余额 %s 元' % (pay_amount - min_charge_amount), end='\n\n')
-    #             break

@@ -14,16 +14,16 @@ from core.logger import log_generate
 
 
 @login
-def view_account_info(*args, **kwargs):
+def view_account_info(**kwargs):
     account = kwargs.get('account', '')
     balance = account.get('balance')
     pay_bills = account.get('pay_bills')
     print('>>> 账户余额 %s 元, 待还款 %s 元' % (balance, pay_bills), end='\n')
-    tips = input('>>> 回到主页面\n')
+    tips = input('>>> 回到主页面(任意键)\n')
 
 
 @login
-def with_draw(*args, **kwargs):
+def with_draw(**kwargs):
     account = kwargs.get('account')
     card_id = account.get('card_id')
     while True:
@@ -102,7 +102,7 @@ def pay_back(**kwargs):
 
 
 @login
-def transfer(*args, **kwargs):
+def transfer(**kwargs):
     account = kwargs.get('account')
     pay_bills = account.get('pay_bills')
     balance = account.get('balance')
@@ -166,14 +166,14 @@ def transfer(*args, **kwargs):
                             break
 
             else:
-                print('>>> 不能给自身账号充值, 请重新输入！')
+                print('>>> \033[1;35m 不能给自身账号充值, 请重新输入 \033[0m！')
 
         else:
             print('>>> 您输入的转账号码有误， 请重新输入')
 
 
 @login
-def disable_credit_card(*args, **kwargs):
+def disable_credit_card(**kwargs):
     account = kwargs.get('account')
     choice = input('继续锁定该账号?\033[1;35m (y)\033[0m: ')
     if choice == 'y' or choice == 'yes':

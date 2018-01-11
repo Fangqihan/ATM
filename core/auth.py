@@ -17,7 +17,7 @@ LOGIN_STATUS = 0
 ACCOUNT = {}
 
 
-def login(func, *args):
+def login(func):
 
     def inner(**kwargs):
         global LOGIN_STATUS
@@ -94,12 +94,12 @@ def login(func, *args):
                 exit('>>> \033[1;35m 对不起，您的密码输入次数过多，已被锁定 \033[0m')
 
         else:
-            choice = input('>>> 是否退出当前账户\033[1;35m (q) \033[0m: ')
-            if choice == 'q' or choice == 'quit':
-                log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
-                LOGIN_STATUS = 0
-            else:
-                return func(account=ACCOUNT, payment_amount=payment_amount)
+            # choice = input('>>> 是否退出当前账户\033[1;35m (q) \033[0m: ')
+            # if choice == 'q' or choice == 'quit':
+            #     log_generate(log_type='access', card_id=ACCOUNT['card_id'], message='logout')
+            #     LOGIN_STATUS = 0
+            # else:
+            return func(account=ACCOUNT, payment_amount=payment_amount)
 
     return inner
 
