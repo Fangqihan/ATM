@@ -29,35 +29,41 @@ while True:
 
     choice = input('\n'+'>>> 请输入业务代码: ')
 
-    if choice.isdigit():
-        if int(choice) == 1:
-            print('\n'+'欢迎开户'.center(30, '-'))
-            atm.create_new_accounts()
+    if not choice.isdigit():
+        print('>>> 输入有误, 请重新输入 ')
 
-        elif int(choice) == 2:
-            view_account_info()
+    elif int(choice) == 1:
+        print('\n'+'欢迎开户'.center(30, '-'))
+        atm.create_new_accounts()
 
-        elif int(choice) == 3:
-            transfer()
+    elif int(choice) == 2:
+        # 查看用户信息
+        view_account_info()
 
-        elif int(choice) == 4:
-            with_draw()
+    elif int(choice) == 3:
+        # 转账业务
+        transfer()
 
-        elif int(choice) == 5:
-            pay_back()
+    elif int(choice) == 4:
+        # 提现业务
+        with_draw()
 
-        elif int(choice) == 8:
-            disable_credit_card()
+    elif int(choice) == 5:
+        # 还款功能
+        pay_back()
 
-        elif int(choice) == 6:
-            shopping_api.go_shopping()
+    elif int(choice) == 8:
+        # 冻结账户功能
+        disable_credit_card()
 
-        elif int(choice) == 9:
-            logout()
+    elif int(choice) == 6:
+        # 购物
+        shopping_api.go_shopping()
 
-        elif int(choice) == 7:
-            output_transaction_records()
+    elif int(choice) == 9:
+        # 退出登录
+        logout()
 
-        else:
-            print('>>> 输入有误, 请重新输入 ')
-
+    elif int(choice) == 7:
+        # 消费记录查询
+        output_transaction_records()

@@ -3,8 +3,6 @@
 # @Author  : QiHanFang
 # @Email   : qihanfang@foxmail.com
 # @File    : shopping_cart_2nd_edition.py.py
-
-
 import json
 import hashlib
 from collections import namedtuple
@@ -99,8 +97,10 @@ def add_good(**kwargs):
 
 
 def go_shopping():
-    shopping_cart = []
+    """购物功能"""
+    shopping_cart = []  # 购物车
     save_path = DATABASE_MALL.get('path')
+    # 取出所有商品信息
     with open(save_path+'/goods.json', 'r') as f:
         goods = json.load(f)
     print('欢迎来到ATM购物商城'.center(26, '-'))
@@ -116,15 +116,24 @@ def go_shopping():
         if choice == 'q' or choice == 'quit':
             print('>>> 谢谢回顾！')
             break
+
         else:
-            if choice.isdigit():
-                if choice in goods.keys():
+            if not choice.isdigit():
+                print('>>> 输入有误，请重新输入')
+            else:
+                if choice not in goods.keys():
+                    print('>>> 商品编号输入有误,请重新输入')
+                else:
                     price = goods[choice]['price']
                     product_name = goods[choice].get('name', '')
-                    tips = input('>>> 将商品%s加进购物车(\033[1;35m (1)\033[0m) 直接购买\033[1;35m (2)\033[0m 清空购物车\033[1;35m (3)\033[0m 请输入编号： ' % product_name)
-                    # shopping_list = namedtuple('shopping_list', ['code','name','price'])
+                    tips = input('>>> 将商品%s加进购物车(\033[1;35m (1)\033[0m) 直接购买\033[1;35m (2)'
+                                 '\033[0m 清空购物车\033[1;35m (3)\033[0m 请输入编号： ' % product_name)
+
+                    # 将物品加入购物车
                     if tips == '1':
                         shopping_cart.append((product_name, price))
+
+                    # 结账
                     elif tips == '2':
                         shopping_cart.append((product_name, price))
                         payment_amount = 0
@@ -132,6 +141,7 @@ def go_shopping():
                         for i in range(len(shopping_cart)):
                             print(shopping_cart[i][0].ljust(10), shopping_cart[i][1])
                             payment_amount += int(shopping_cart[i][1])
+
                         print('>>> 合计 %s 元' % payment_amount)
                         tips = input('是否立即结账?(y)  ')
                         if tips == 'y' or tips == 'yes':
@@ -140,39 +150,8 @@ def go_shopping():
                         else:
                             print(shopping_cart)
 
+                    # 清空购物车
                     elif tips == '3':
                         shopping_cart = []
 
-                else:
-                    print('>>> 商品编号输入有误,请重新输入')
 
-            else:
-                print('>>> 输入有误，请重新输入')
-
-# def init_goods_lst():
-#     goods = {
-#             '1': {"name": "mac_pro", "price": 9999},
-#             '2': {"name": "mouse", "price": 10},
-#             '3': {"name": 'book', "price": 70},
-#             '4': {"name": "iphone", "price": 8888},
-#             '5': {"name": "bottle", "price": 50},
-#             '6': {"name": "shoe", "price": 399},
-#             '7': {"name": "jacket", "price": 500},
-#     }
-#
-#     save_path = DATABASE_MALL.get('path')
-#     with open(save_path+'/goods.json', 'w') as f:
-#         json.dump(goods, f)
-
-
-# def init_super_usr_account():
-#     m = hashlib.md5()
-#     m.update(b'lynnfang')
-#     username = m.hexdigest()
-#     m.update(b'fqh202')
-#     password = m.hexdigest()
-#     save_path = DATABASE_MALL.get('path')
-#     f = open(save_path+'/super_user.json', 'w')
-#     super_user = {'username': username, 'password': password}
-#     json.dump(super_user, f)
-#     f.close()
